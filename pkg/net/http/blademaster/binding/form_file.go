@@ -3,9 +3,8 @@ package binding
 import (
 	"errors"
 	"fmt"
-	"go.gitbaidu.com/gopkg/utility/filepath"
-	"go.gitbaidu.com/gopkg/utility/random"
 	"io"
+	"math/rand"
 	"mime/multipart"
 	"os"
 	"path"
@@ -60,7 +59,8 @@ func (f File) SaveUploadedFile(dst string) (file string, err error) {
 	}
 	// 生成文件路径
 	t := time.Now()
-	file = fmt.Sprint(t.Year(), "/", t.YearDay(), t.Hour(), t.Minute(), t.Second(), random.Intn(5), hType)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	file = fmt.Sprint(t.Year(), "/", t.YearDay(), t.Hour(), t.Minute(), t.Second(), r.Intn(5), hType)
 	localFile := dst + file
 	// 建立所有文件夹
 	if err := os.MkdirAll(path.Dir(localFile), 0700); err != nil {
@@ -81,9 +81,11 @@ func (f File) SaveUploadedFile(dst string) (file string, err error) {
 func (f File) RemoveFile(dst string, files ...string) []error {
 	for i, file := range files {
 		files[i] = dst + file
+		os.Remove(files[i]);
 	}
-	return filepath.DeleteFiles(files...)
+	return nil
 }
+
 
 func (f Files) Len() int {
 	return len(f)
