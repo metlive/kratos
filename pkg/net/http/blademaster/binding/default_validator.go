@@ -56,7 +56,7 @@ func (v *defaultValidator) lazyinit() {
 		v.uni = ut.New(zh, zh)
 		v.Trans, _ = v.uni.GetTranslator("zh")
 		v.validate = validator.New()
-		//v.validate.SetTagName("binding")
+		v.validate.SetTagName("validate")
 
 		zh_translations.RegisterDefaultTranslations(v.validate, v.Trans)
 
