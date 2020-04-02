@@ -2,7 +2,6 @@ package binding
 
 import (
 	"errors"
-	"gopkg.in/go-playground/validator.v8"
 	"reflect"
 	"sync"
 
