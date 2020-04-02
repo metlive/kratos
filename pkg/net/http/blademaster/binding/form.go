@@ -1,10 +1,6 @@
 package binding
 
-import (
-	"net/http"
-
-	"github.com/pkg/errors"
-)
+import "net/http"
 
 const defaultMemory = 32 * 1024 * 1024
 
@@ -12,27 +8,28 @@ type formBinding struct{}
 type formPostBinding struct{}
 type formMultipartBinding struct{}
 
-func (f formBinding) Name() string {
+func (formBinding) Name() string {
 	return "form"
 }
 
-func (f formBinding) Bind(req *http.Request, obj interface{}) error {
+func (formBinding) Bind(req *http.Request, obj interface{}) error {
 	if err := req.ParseForm(); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
+	req.ParseMultipartForm(defaultMemory)
 	if err := mapForm(obj, req.Form); err != nil {
 		return err
 	}
 	return validate(obj)
 }
 
-func (f formPostBinding) Name() string {
+func (formPostBinding) Name() string {
 	return "form-urlencoded"
 }
 
-func (f formPostBinding) Bind(req *http.Request, obj interface{}) error {
+func (formPostBinding) Bind(req *http.Request, obj interface{}) error {
 	if err := req.ParseForm(); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if err := mapForm(obj, req.PostForm); err != nil {
 		return err
@@ -40,15 +37,18 @@ func (f formPostBinding) Bind(req *http.Request, obj interface{}) error {
 	return validate(obj)
 }
 
-func (f formMultipartBinding) Name() string {
+func (formMultipartBinding) Name() string {
 	return "multipart/form-data"
 }
 
-func (f formMultipartBinding) Bind(req *http.Request, obj interface{}) error {
+func (formMultipartBinding) Bind(req *http.Request, obj interface{}) error {
 	if err := req.ParseMultipartForm(defaultMemory); err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if err := mapForm(obj, req.MultipartForm.Value); err != nil {
+		return err
+	}
+	if err := mapFile(obj, req.MultipartForm.File); err != nil {
 		return err
 	}
 	return validate(obj)
