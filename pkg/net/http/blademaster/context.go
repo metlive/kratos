@@ -303,9 +303,11 @@ func (c *Context) mustBindWith(obj interface{}, b binding.Binding) (err error) {
 	if err = b.Bind(c.Request, obj); err != nil {
 		c.Error = ecode.RequestErr
 		c.Render(http.StatusOK, render.JSON{
-			Code:    ecode.RequestErr.Code(),
-			Message: err.Error(),
-			Data:    nil,
+			Code:       ecode.RequestErr.Code(),
+			Message:    err.Error(),
+			Data:       nil,
+			ServerTime: time.Now().Unix(),
+			TraceId:    fmt.Sprintf("%s", c.Context.Value(trace.KratosTraceID)),
 		})
 		c.Abort()
 	}
